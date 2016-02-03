@@ -1,6 +1,7 @@
 package awsign
 
 import (
+	"net/http"
 	"net/url"
 	"sort"
 	"strings"
@@ -25,7 +26,7 @@ func CanonicalURI(uri string) string {
 
 // CanonicalHeaders returns both the signed headers and the canonical header
 // entires
-func CanonicalHeaders(h url.Values) (string, string) {
+func CanonicalHeaders(h http.Header) (string, string) {
 	lenh := len(h)
 	if lenh == 0 {
 		return "", ""
@@ -38,17 +39,17 @@ func CanonicalHeaders(h url.Values) (string, string) {
 
 	// get headers and sort
 	for k, _ := range h {
-		so = append(so, k)
+		so = append(so, lower(k))
 	}
 	sort.Strings(so)
 
 	for _, v := range so {
 		val := h.Get(v)
-		en = append(en, lower(v)+":"+trim(val))
+		en = append(en, v+":"+trim(val))
 	}
 
 	var (
-		sh = lower(join(so, ";")) + "\n"
+		sh = join(so, ";")
 		he = join(en, "\n") + "\n"
 	)
 	return sh, he

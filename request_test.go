@@ -1,7 +1,7 @@
 package awsign
 
 import (
-	"net/url"
+	"net/http"
 	"testing"
 )
 
@@ -30,28 +30,28 @@ func TestCanonicalHeaders(t *testing.T) {
 	}
 
 	var cases = []struct {
-		giv url.Values
+		giv http.Header
 		exp e
 	}{
 		{
-			url.Values{}, e{``, ``},
+			http.Header{}, e{``, ``},
 		},
 		{
-			url.Values{
+			http.Header{
 				"Host":         {"iam.amazonaws.com"},
 				"Content-Type": {"application/x-www-form-urlencoded; charset=utf-8"},
 			},
 			e{
-				"content-type;host\n",
+				"content-type;host",
 				`content-type:application/x-www-form-urlencoded; charset=utf-8
 host:iam.amazonaws.com
 `},
 		},
 		{
-			url.Values{
+			http.Header{
 				"Host": {"    iam.amazonaws.com    "},
 			},
-			e{"host\n", "host:iam.amazonaws.com\n"},
+			e{"host", "host:iam.amazonaws.com\n"},
 		},
 	}
 
