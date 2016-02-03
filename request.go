@@ -54,3 +54,30 @@ func CanonicalHeaders(h http.Header) (string, string) {
 	)
 	return sh, he
 }
+
+func CanonicalRequest(req *http.Request) string {
+	var (
+		meth = req.Method
+		h    = req.Header
+		url  = req.URL
+		path = url.Path
+		q    = url.RawQuery
+
+		sh, en = CanonicalHeaders(h)
+	)
+
+	cano := []string{
+		meth,
+		CanonicalURI(path),
+		q,
+		en,
+		sh,
+		hashSha256([]byte{}), // NOTE we assume body is empty
+	}
+
+	return join(cano, "\n")
+}
+
+func HashCanonicalRequest(req *http.Request) string {
+	return hashSha256([]byte(CanonicalRequest(req)))
+}
