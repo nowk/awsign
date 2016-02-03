@@ -47,6 +47,12 @@ func TestCanonicalHeaders(t *testing.T) {
 host:iam.amazonaws.com
 `},
 		},
+		{
+			url.Values{
+				"Host": {"    iam.amazonaws.com    "},
+			},
+			e{"host\n", "host:iam.amazonaws.com\n"},
+		},
 	}
 
 	for _, v := range cases {

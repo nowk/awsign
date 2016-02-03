@@ -9,6 +9,7 @@ import (
 var (
 	lower = strings.ToLower
 	join  = strings.Join
+	trim  = strings.TrimSpace
 )
 
 // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
@@ -43,7 +44,7 @@ func CanonicalHeaders(h url.Values) (string, string) {
 
 	for _, v := range so {
 		val := h.Get(v)
-		en = append(en, lower(v)+":"+val)
+		en = append(en, lower(v)+":"+trim(val))
 	}
 
 	var (
