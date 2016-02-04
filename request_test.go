@@ -77,19 +77,6 @@ host:iam.amazonaws.com
 }
 
 func TestCanonicalRequest(t *testing.T) {
-	// GET https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08 HTTP/1.1
-	// Host: iam.amazonaws.com
-	// Content-Type: application/x-www-form-urlencoded; charset=utf-8
-	// X-Amz-Date: 20150830T123600Z
-
-	req, err := http.NewRequest("GET", "https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
-	req.Header.Add("X-Amz-Date", "20150830T123600Z")
-	req.Header.Add("Host", "iam.amazonaws.com")
-
 	var exp = `GET
 /
 Action=ListUsers&Version=2010-05-08
@@ -100,24 +87,16 @@ x-amz-date:20150830T123600Z
 content-type;host;x-amz-date
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
 
-	got := CanonicalRequest(req)
+	got := CanonicalRequest(testRequest)
 	if exp != got {
 		t.Errorf("expected %s, got %s", exp, got)
 	}
 }
 
 func TestHashCanonicalRequest(t *testing.T) {
-	req, err := http.NewRequest("GET", "https://iam.amazonaws.com/?Action=ListUsers&Version=2010-05-08", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
-	req.Header.Add("X-Amz-Date", "20150830T123600Z")
-	req.Header.Add("Host", "iam.amazonaws.com")
-
 	var exp = "f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59"
 
-	got := HashCanonicalRequest(req)
+	got := HashCanonicalRequest(testRequest)
 	if exp != got {
 		t.Errorf("expected %s, got %s", exp, got)
 	}
