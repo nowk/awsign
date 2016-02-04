@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"fmt"
-	"net/http"
 	"path"
 )
 
@@ -37,25 +36,30 @@ func (o Options) Get(k string) string {
 	return o[k]
 }
 
-func Sign(req *http.Request, c Credentials) Options {
-	var (
-		u         = req.URL
-		h         = req.Header
-		date      = h.Get("X-Amz-Date")
-		dateshort = date[:8]
-	)
-	var (
-		hash  = HashCanonicalRequest(req)
-		scope = CredentialScope(dateshort, "us-east-1", "iam")
-		str   = StringToSign(defaultAlgo, date, scope, hash)
-		sig   = Signature(str, c.SecretAccessKey, dateshort, "us-east-1", "iam")
-	)
+// func Sign(req *http.Request, c Credentials) Options {
+// 	var (
+// 		h         = req.Header
+// 		date      = h.Get("X-Amz-Date")
+// 		dateshort = date[:8]
 
-	return Options{
-		"key":        u.Path,
-		"algorithm":  defaultAlgo,
-		"credential": path.Join(c.AccessKeyID, scope),
-		"signature":  sig,
-		"date":       date,
-	}
-}
+// 		region  = "us-east-1"
+// 		service = "s3"
+
+// 		hash      = HashCanonicalRequest(req)
+// 		scope     = CredentialScope(dateshort, region, service)
+// 		strtosign = StringToSign(defaultAlgo, date, scope, hash)
+
+// 		credential = path.Join(c.AccessKeyID, scope)
+// 	)
+
+// 	sig := Signature(strtosign, c.SecretAccessKey, dateshort, region, service)
+
+// 	o := Options{
+// 		"algorithm":  defaultAlgo,
+// 		"credential": credential,
+// 		"signature":  sig,
+// 		"date":       date,
+// 	}
+
+// 	return o
+// }
