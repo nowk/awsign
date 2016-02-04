@@ -15,7 +15,7 @@ func defaultConf() Conf {
 
 // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-string-to-sign.html
 
-func StringToSign(req *http.Request, opts ...func(Conf)) string {
+func StringToSign(req *http.Request, opts ...func(Conf)) (string, Conf) {
 	var (
 		h    = req.Header
 		date = h.Get("X-Amz-Date")
@@ -41,7 +41,7 @@ func StringToSign(req *http.Request, opts ...func(Conf)) string {
 		HashCanonicalRequest(req),
 	}
 
-	return join(s, "\n")
+	return join(s, "\n"), conf
 }
 
 func CredentialScope(s ...string) string {

@@ -2,6 +2,7 @@ package awsign
 
 import (
 	"net/http"
+	"reflect"
 	"testing"
 )
 
@@ -14,17 +15,31 @@ func TestStringToSign(t *testing.T) {
 	req.Header.Add("X-Amz-Date", "20150830T123600Z")
 	req.Header.Add("Host", "iam.amazonaws.com")
 
-	var exp = `AWS4-HMAC-SHA256
+	confFunc := func(c Conf) {
+		c.Set("service", "iam")
+	}
+	s, c := StringToSign(req, confFunc)
+
+	{
+		var exp = `AWS4-HMAC-SHA256
 20150830T123600Z
 20150830/us-east-1/iam/aws4_request
 f536975d06c0309214f805bb90ccff089219ecd68b2577efef23edd43b7e1a59`
 
-	confFunc := func(c Conf) {
-		c.Set("service", "iam")
+		if got := s; exp != got {
+			t.Errorf("expected %s, got %s", exp, got)
+		}
 	}
 
-	got := StringToSign(req, confFunc)
-	if exp != got {
-		t.Errorf("expected %s, got %s", exp, got)
+	{
+		var exp = Conf{
+			"algo":    defaultAlgo,
+			"service": "iam",
+			"region":  "us-east-1",
+		}
+
+		if got := c; !reflect.DeepEqual(exp, got) {
+			t.Errorf("expected %s, got %s", exp, got)
+		}
 	}
 }
