@@ -21,11 +21,6 @@ func hmacSha256(key, content []byte) []byte {
 
 const defaultAlgo = "AWS4-HMAC-SHA256"
 
-type Credentials struct {
-	AccessKeyID     string
-	SecretAccessKey string
-}
-
 type Options map[string]string
 
 func (o Options) Set(k, v string) {
@@ -86,7 +81,7 @@ var defaultAws = func() Aws {
 // as documented for AWS S3 browser based uploading.
 // http://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-UsingHTTPPOST.html
 func SignPolicy(
-	p *Policy, date string, c Credentials, opts ...func(Aws)) (Options, error) {
+	p *Policy, date string, c Aws, opts ...func(Aws)) (Options, error) {
 
 	aws := defaultAws()
 	for _, v := range opts {
@@ -100,7 +95,7 @@ func SignPolicy(
 		dateshort = date[:8]
 
 		credential = path.Join(
-			c.AccessKeyID, CredentialScope(dateshort, region, service))
+			c.Get("access_key_id"), CredentialScope(dateshort, region, service))
 	)
 
 	strtosign, err := p.Base64()
@@ -108,7 +103,7 @@ func SignPolicy(
 		return nil, err
 	}
 
-	sig := Signature(strtosign, c.SecretAccessKey, dateshort, region, service)
+	sig := Signature(strtosign, c.Get("secret_access_key"), dateshort, region, service)
 
 	o := Options{
 		"algorithm":  algo,
